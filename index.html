@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - NimbusCRM</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    /* Login-specific layout adjustments */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: var(--color-bg-body);
+      padding: var(--space-4);
+    }
+
+    .login-card {
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 420px;
+      padding: var(--space-8);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: var(--space-6);
+    }
+
+    .login-header h1 {
+      font-size: var(--font-size-xl);
+      color: var(--color-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .login-header p {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      margin-bottom: var(--space-1);
+      color: var(--color-text-main);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--color-border-dark);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-md);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .form-input:focus {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .form-input.error {
+      border-color: var(--color-danger);
+    }
+
+    .form-input.error:focus {
+      box-shadow: 0 0 0 3px var(--color-danger-light);
+    }
+
+    .error-message {
+      color: var(--color-danger);
+      font-size: var(--font-size-xs);
+      margin-top: var(--space-1);
+      display: none;
+    }
+
+    .error-message.visible {
+      display: block;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: var(--space-3);
+      background-color: var(--color-primary);
+      color: white;
+      font-weight: var(--font-weight-semibold);
+      border-radius: var(--radius-md);
+      transition: background-color var(--transition-fast);
+      margin-top: var(--space-2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    .alert-banner {
+      background-color: var(--color-danger-light);
+      border: 1px solid var(--color-danger);
+      color: var(--color-danger);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--space-4);
+      display: none;
+    }
+
+    .alert-banner.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-header">
+      <h1>NimbusCRM</h1>
+      <p>Sign in to your account to continue</p>
+    </div>
+
+    <div id="loginAlert" class="alert-banner">
+      Invalid email or password. Try admin@nimbus.com / password123
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+        <span id="emailError" class="error-message">Please enter a valid email address.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+        <span id="passwordError" class="error-message">Password cannot be blank.</span>
+      </div>
+
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
