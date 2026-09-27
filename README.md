@@ -1,4 +1,4 @@
-# NimbusCRM ⚡
+# NimbusCRM
 
 NimbusCRM is a blazing fast, zero-bloat, **frontend-only CRM dashboard** built strictly with native web technologies.
 
