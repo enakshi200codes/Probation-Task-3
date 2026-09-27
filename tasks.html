@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasks - NimbusCRM</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    .page-header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .search-filter-bar {
+      display: flex;
+      gap: var(--space-3);
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .search-input, .filter-select {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-border-dark);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background-color: var(--color-bg-surface);
+    }
+
+    .search-input {
+      flex: 1;
+    }
+
+    .btn-action {
+      background-color: var(--color-primary);
+      color: white;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-weight: var(--font-weight-medium);
+      font-size: var(--font-size-sm);
+      transition: background-color var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-action:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    .btn-action--danger {
+      background-color: var(--color-danger);
+    }
+
+    .btn-action--danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .table-card {
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: var(--space-4) var(--space-6);
+      font-size: var(--font-size-sm);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .data-table th {
+      background-color: var(--color-bg-alt);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted);
+    }
+
+    .data-table tr:hover {
+      background-color: var(--color-bg-alt);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+    }
+
+    /* Priority Badges */
+    .badge--priority-low {
+      background-color: var(--color-bg-body);
+      color: var(--color-text-muted);
+    }
+
+    .badge--priority-medium {
+      background-color: var(--color-warning-light);
+      color: var(--color-warning);
+    }
+
+    .badge--priority-high {
+      background-color: var(--color-danger-light);
+      color: var(--color-danger);
+    }
+
+    /* Status Badges */
+    .badge--status-todo {
+      background-color: var(--color-bg-body);
+      color: var(--color-text-muted);
+    }
+
+    .badge--status-progress {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .badge--status-done {
+      background-color: var(--color-success-light);
+      color: var(--color-success);
+    }
+
+    .overdue-text {
+      color: var(--color-danger);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .table-actions {
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .btn-icon {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      transition: color var(--transition-fast);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-icon:hover {
+      color: var(--color-primary);
+    }
+
+    .btn-icon--danger:hover {
+      color: var(--color-danger);
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background-color: var(--color-bg-surface);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      padding: var(--space-6);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .modal__title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      margin-bottom: var(--space-1);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--color-border-dark);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-md);
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      margin-top: var(--space-6);
+    }
+
+    .btn-secondary {
+      background-color: var(--color-bg-body);
+      color: var(--color-text-main);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-weight: var(--font-weight-medium);
+      font-size: var(--font-size-sm);
+      border: 1px solid var(--color-border-dark);
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--color-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <span class="sidebar__logo">NimbusCRM</span>
+      </div>
+      <nav class="sidebar__nav">
+        <ul class="sidebar__menu">
+          <li><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+          <li><a href="customers.html" class="sidebar__link">Customers</a></li>
+          <li><a href="leads.html" class="sidebar__link">Leads</a></li>
+          <li><a href="tasks.html" class="sidebar__link active">Tasks</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+      <header class="navbar">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="navbar__toggler" id="sidebarToggler" aria-label="Toggle Navigation">☰</button>
+          <h1 class="navbar__title">Tasks</h1>
+        </div>
+        <div class="navbar__actions">
+          <div class="user-profile">
+            <div class="user-profile__avatar">JD</div>
+            <span style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);">Jane Doe</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-wrapper">
+        <div class="page-header-actions">
+            <div class="search-filter-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search tasks by title or assignee...">
+                <select id="priorityFilter" class="filter-select">
+                    <option value="">All Priorities</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                </select>
+            </div>
+          <button id="openModalBtn" class="btn-action">+ Add Task</button>
+        </div>
+
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Task Title</th>
+                <th>Assigned To</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="taskTableBody">
+              <tr>
+                <td>Prepare Q3 Financial Review</td>
+                <td>Jane Doe</td>
+                <td><span class="badge badge--priority-high">High</span></td>
+                <td><span class="overdue-text">2026-09-20 (Overdue)</span></td>
+                <td><span class="badge badge--status-progress">In Progress</span></td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-icon" title="Edit">Edit</button>
+                    <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Follow up with Acme Corp contract</td>
+                <td>Sarah Jenkins</td>
+                <td><span class="badge badge--priority-medium">Medium</span></td>
+                <td>2026-10-05</td>
+                <td><span class="badge badge--status-todo">To Do</span></td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-icon" title="Edit">Edit</button>
+                    <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Update API Documentation</td>
+                <td>Marcus Vance</td>
+                <td><span class="badge badge--priority-low">Low</span></td>
+                <td>2026-09-15</td>
+                <td><span class="badge badge--status-done">Done</span></td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-icon" title="Edit">Edit</button>
+                    <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Task Modal -->
+  <div id="taskModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">Add New Task</h2>
+        <button type="button" id="closeModalBtn" class="btn-icon" aria-label="Close modal">✕</button>
+      </div>
+      <form id="taskForm">
+        <div class="form-group">
+          <label class="form-label" for="taskTitle">Task Title</label>
+          <input type="text" id="taskTitle" class="form-input" required placeholder="e.g. Review client proposal">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="taskAssignee">Assigned To</label>
+          <input type="text" id="taskAssignee" class="form-input" required placeholder="Team Member Name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="taskPriority">Priority</label>
+          <select id="taskPriority" class="form-select">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="taskDueDate">Due Date</label>
+          <input type="date" id="taskDueDate" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="taskStatus">Status</label>
+          <select id="taskStatus" class="form-select">
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="cancelModalBtn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-action">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">Confirm Deletion</h2>
+        <button type="button" id="closeDeleteModalBtn" class="btn-icon" aria-label="Close modal">✕</button>
+      </div>
+      <div style="margin-bottom: var(--space-6);">
+        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.5;">
+          Are you sure you want to delete task <strong id="deleteTaskTitle" style="color: var(--color-text-main);"></strong>? This action cannot be undone.
+        </p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
+        <button type="button" id="confirmDeleteBtn" class="btn-action btn-action--danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { qs, qsa, toggleClass } from './js/dom.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarToggler = qs('#sidebarToggler');
+      const sidebar = qs('#sidebar');
+      if (sidebarToggler && sidebar) {
+        sidebarToggler.addEventListener('click', () => toggleClass(sidebar, 'open'));
+      }
+
+      // Add Task Modal elements
+      const modal = qs('#taskModal');
+      const openModalBtn = qs('#openModalBtn');
+      const closeModalBtn = qs('#closeModalBtn');
+      const cancelModalBtn = qs('#cancelModalBtn');
+      const taskForm = qs('#taskForm');
+      const tableBody = qs('#taskTableBody');
+
+      const openAddModal = () => toggleClass(modal, 'open');
+      const closeAddModal = () => {
+        modal.classList.remove('open');
+        if (taskForm) taskForm.reset();
+        qsa('.form-input, .form-select', taskForm).forEach(el => el.classList.remove('error'));
+      };
+
+      if (openModalBtn) openModalBtn.addEventListener('click', openAddModal);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddModal);
+      if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeAddModal);
+
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeAddModal();
+        });
+      }
+
+      // Delete Confirmation Modal elements
+      const deleteModal = qs('#deleteModal');
+      const closeDeleteModalBtn = qs('#closeDeleteModalBtn');
+      const cancelDeleteBtn = qs('#cancelDeleteBtn');
+      const confirmDeleteBtn = qs('#confirmDeleteBtn');
+      const deleteTaskTitleEl = qs('#deleteTaskTitle');
+      
+      let rowToDelete = null;
+
+      const openDeleteModal = (row) => {
+        rowToDelete = row;
+        const title = row.children[0].innerText;
+        deleteTaskTitleEl.innerText = title;
+        toggleClass(deleteModal, 'open');
+      };
+
+      const closeDeleteModal = () => {
+        deleteModal.classList.remove('open');
+        rowToDelete = null;
+      };
+
+      if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+          if (e.target === deleteModal) closeDeleteModal();
+        });
+      }
+
+      if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+      if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+      if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', () => {
+          if (rowToDelete) {
+            rowToDelete.remove();
+          }
+          closeDeleteModal();
+        });
+      }
+
+      // Global Escape Key Listener
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeAddModal();
+          closeDeleteModal();
+        }
+      });
+
+      const getPriorityBadgeClass = (priority) => {
+        switch(priority) {
+          case 'Low': return 'badge--priority-low';
+          case 'Medium': return 'badge--priority-medium';
+          case 'High': return 'badge--priority-high';
+          default: return 'badge--priority-low';
+        }
+      };
+
+      const getStatusBadgeClass = (status) => {
+        switch(status) {
+          case 'To Do': return 'badge--status-todo';
+          case 'In Progress': return 'badge--status-progress';
+          case 'Done': return 'badge--status-done';
+          default: return 'badge--status-todo';
+        }
+      };
+
+      // Add Task Form Submit
+      if (taskForm) {
+        taskForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const title = qs('#taskTitle').value;
+          const assignee = qs('#taskAssignee').value;
+          const priority = qs('#taskPriority').value;
+          const dueDate = qs('#taskDueDate').value;
+          const status = qs('#taskStatus').value;
+
+          const priorityClass = getPriorityBadgeClass(priority);
+          const statusClass = getStatusBadgeClass(status);
+
+          // Overdue calculation against current simulated date (2026-09-27)
+          const today = new Date('2026-09-27');
+          const due = new Date(dueDate);
+          const isOverdue = due < today && status !== 'Done';
+
+          const dateDisplay = isOverdue 
+            ? `<span class="overdue-text">${dueDate} (Overdue)</span>` 
+            : dueDate;
+
+          const newRow = document.createElement('tr');
+          newRow.innerHTML = `
+            <td>${title}</td>
+            <td>${assignee}</td>
+            <td><span class="badge ${priorityClass}">${priority}</span></td>
+            <td>${dateDisplay}</td>
+            <td><span class="badge ${statusClass}">${status}</span></td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-icon" title="Edit">Edit</button>
+                <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+              </div>
+            </td>
+          `;
+
+          attachDeleteHandler(newRow.querySelector('.delete-btn'));
+
+          tableBody.appendChild(newRow);
+          closeAddModal();
+        });
+      }
+
+      const attachDeleteHandler = (btn) => {
+        btn.addEventListener('click', (e) => {
+          const row = e.target.closest('tr');
+          openDeleteModal(row);
+        });
+      };
+
+      qsa('.delete-btn', tableBody).forEach(attachDeleteHandler);
+
+      // Search & Status Filter
+      const searchInput = qs('#searchInput');
+const statusFilter = qs('#statusFilter');
+const priorityFilter = qs('#priorityFilter');
+
+const filterTable = () => {
+    const searchTerm = searchInput.value.toLowerCase();
+    const statusValue = statusFilter.value;
+    const priorityValue = priorityFilter.value;
+
+    const rows = qsa('tr', tableBody);
+
+    rows.forEach(row => {
+        const taskTitle = row.children[0].innerText.toLowerCase();
+        const assignee = row.children[1].innerText.toLowerCase();
+
+        const priorityText =
+            row.children[2].querySelector('.badge').innerText.trim();
+
+        const statusText =
+            row.children[4].querySelector('.badge').innerText.trim();
+
+        const matchesSearch =
+            taskTitle.includes(searchTerm) ||
+            assignee.includes(searchTerm);
+
+        const matchesPriority =
+            !priorityValue || priorityText === priorityValue;
+
+        const matchesStatus =
+            !statusValue || statusText === statusValue;
+
+        row.style.display =
+            matchesSearch &&
+            matchesPriority &&
+            matchesStatus
+                ? ''
+                : 'none';
+    });
+};
+
+if (searchInput)
+    searchInput.addEventListener('input', filterTable);
+
+if (statusFilter)
+    statusFilter.addEventListener('change', filterTable);
+
+if (priorityFilter)
+    priorityFilter.addEventListener('change', filterTable);
+    });
+  </script>
+</body>
+</html>
