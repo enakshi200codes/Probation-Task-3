@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leads - NimbusCRM</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    .page-header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .search-filter-bar {
+      display: flex;
+      gap: var(--space-3);
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .search-input, .filter-select {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-border-dark);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background-color: var(--color-bg-surface);
+    }
+
+    .search-input {
+      flex: 1;
+    }
+
+    .btn-action {
+      background-color: var(--color-primary);
+      color: white;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-weight: var(--font-weight-medium);
+      font-size: var(--font-size-sm);
+      transition: background-color var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-action:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    .btn-action--danger {
+      background-color: var(--color-danger);
+    }
+
+    .btn-action--danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .table-card {
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: var(--space-4) var(--space-6);
+      font-size: var(--font-size-sm);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .data-table th {
+      background-color: var(--color-bg-alt);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-muted);
+    }
+
+    .data-table tr:hover {
+      background-color: var(--color-bg-alt);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .badge--new {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .badge--contacted {
+      background-color: var(--color-warning-light);
+      color: var(--color-warning);
+    }
+
+    .badge--qualified {
+      background-color: var(--color-success-light);
+      color: var(--color-success);
+    }
+
+    .badge--lost {
+      background-color: var(--color-danger-light);
+      color: var(--color-danger);
+    }
+
+    .table-actions {
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .btn-icon {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      transition: color var(--transition-fast);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-icon:hover {
+      color: var(--color-primary);
+    }
+
+    .btn-icon--danger:hover {
+      color: var(--color-danger);
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background-color: var(--color-bg-surface);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      padding: var(--space-6);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .modal__title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      margin-bottom: var(--space-1);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--color-border-dark);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-md);
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      margin-top: var(--space-6);
+    }
+
+    .btn-secondary {
+      background-color: var(--color-bg-body);
+      color: var(--color-text-main);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-weight: var(--font-weight-medium);
+      font-size: var(--font-size-sm);
+      border: 1px solid var(--color-border-dark);
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--color-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <span class="sidebar__logo">NimbusCRM</span>
+      </div>
+      <nav class="sidebar__nav">
+        <ul class="sidebar__menu">
+          <li><a href="dashboard.html" class="sidebar__link">Dashboard</a></li>
+          <li><a href="customers.html" class="sidebar__link">Customers</a></li>
+          <li><a href="leads.html" class="sidebar__link active">Leads</a></li>
+          <li><a href="tasks.html" class="sidebar__link">Tasks</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+      <header class="navbar">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="navbar__toggler" id="sidebarToggler" aria-label="Toggle Navigation">☰</button>
+          <h1 class="navbar__title">Leads</h1>
+        </div>
+        <div class="navbar__actions">
+          <div class="user-profile">
+            <div class="user-profile__avatar">JD</div>
+            <span style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);">Jane Doe</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-wrapper">
+        <div class="page-header-actions">
+          <div class="search-filter-bar">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search leads by name, email, or company...">
+            <select id="statusFilter" class="filter-select">
+              <option value="">All Statuses</option>
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Qualified">Qualified</option>
+              <option value="Lost">Lost</option>
+            </select>
+          </div>
+          <button id="openModalBtn" class="btn-action">+ Add Lead</button>
+        </div>
+
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadTableBody">
+              <tr>
+                <td>Sarah Connor</td>
+                <td>s.connor@cyberdyne.io</td>
+                <td>Cyberdyne Systems</td>
+                <td>Inbound Website</td>
+                <td><span class="badge badge--new">New</span></td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-icon" title="Edit">Edit</button>
+                    <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Arthur Dent</td>
+                <td>arthur@hitchhiker.org</td>
+                <td>Megadodo Publications</td>
+                <td>Referral</td>
+                <td><span class="badge badge--contacted">Contacted</span></td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-icon" title="Edit">Edit</button>
+                    <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Bruce Wayne</td>
+                <td>bruce@wayneenterprises.com</td>
+                <td>Wayne Enterprises</td>
+                <td>Direct Outreach</td>
+                <td><span class="badge badge--qualified">Qualified</span></td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-icon" title="Edit">Edit</button>
+                    <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Lead Modal -->
+  <div id="leadModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">Add New Lead</h2>
+        <button id="closeModalBtn" class="btn-icon">✕</button>
+      </div>
+      <form id="leadForm">
+        <div class="form-group">
+          <label class="form-label" for="leadName">Full Name</label>
+          <input type="text" id="leadName" class="form-input" required placeholder="e.g. John Doe">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="leadEmail">Email Address</label>
+          <input type="email" id="leadEmail" class="form-input" required placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="leadCompany">Company</label>
+          <input type="text" id="leadCompany" class="form-input" required placeholder="Company Name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="leadSource">Source</label>
+          <input type="text" id="leadSource" class="form-input" required placeholder="e.g. Inbound Website">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="leadStatus">Status</label>
+          <select id="leadStatus" class="form-select">
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Qualified">Qualified</option>
+            <option value="Lost">Lost</option>
+          </select>
+        </div>
+        <div class="modal__footer">
+          <button type="button" id="cancelModalBtn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-action">Save Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">Confirm Deletion</h2>
+        <button id="closeDeleteModalBtn" class="btn-icon">✕</button>
+      </div>
+      <div style="margin-bottom: var(--space-6);">
+        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: 1.5;">
+          Are you sure you want to delete lead <strong id="deleteLeadName" style="color: var(--color-text-main);"></strong>? This action cannot be undone.
+        </p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
+        <button type="button" id="confirmDeleteBtn" class="btn-action btn-action--danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { qs, qsa, toggleClass } from './js/dom.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarToggler = qs('#sidebarToggler');
+      const sidebar = qs('#sidebar');
+      if (sidebarToggler && sidebar) {
+        sidebarToggler.addEventListener('click', () => toggleClass(sidebar, 'open'));
+      }
+
+      // Add Lead Modal elements
+      const modal = qs('#leadModal');
+      const openModalBtn = qs('#openModalBtn');
+      const closeModalBtn = qs('#closeModalBtn');
+      const cancelModalBtn = qs('#cancelModalBtn');
+      const leadForm = qs('#leadForm');
+      const tableBody = qs('#leadTableBody');
+
+      const openAddModal = () => toggleClass(modal, 'open');
+      const closeAddModal = () => {
+        modal.classList.remove('open');
+        if (leadForm) leadForm.reset();
+        qsa('.form-input, .form-select', leadForm).forEach(el => el.classList.remove('error'));
+      };
+
+      if (openModalBtn) openModalBtn.addEventListener('click', openAddModal);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddModal);
+      if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeAddModal);
+
+      // Outside click for Add Modal
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeAddModal();
+        });
+      }
+
+      // Delete Confirmation Modal elements
+      const deleteModal = qs('#deleteModal');
+      const closeDeleteModalBtn = qs('#closeDeleteModalBtn');
+      const cancelDeleteBtn = qs('#cancelDeleteBtn');
+      const confirmDeleteBtn = qs('#confirmDeleteBtn');
+      const deleteLeadNameEl = qs('#deleteLeadName');
+      
+      let rowToDelete = null;
+
+      const openDeleteModal = (row) => {
+        rowToDelete = row;
+        const name = row.children[0].innerText;
+        deleteLeadNameEl.innerText = name;
+        toggleClass(deleteModal, 'open');
+      };
+
+      const closeDeleteModal = () => {
+        deleteModal.classList.remove('open');
+        rowToDelete = null;
+      };
+
+      if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+          if (e.target === deleteModal) closeDeleteModal();
+        });
+      }
+
+      if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+      if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+      if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', () => {
+          if (rowToDelete) {
+            rowToDelete.remove();
+          }
+          closeDeleteModal();
+        });
+      }
+
+      // Global Escape Key Listener for all modals
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeAddModal();
+          closeDeleteModal();
+        }
+      });
+
+      const getBadgeClass = (status) => {
+        switch(status) {
+          case 'New': return 'badge--new';
+          case 'Contacted': return 'badge--contacted';
+          case 'Qualified': return 'badge--qualified';
+          case 'Lost': return 'badge--lost';
+          default: return 'badge--new';
+        }
+      };
+
+      // Add Lead Form Submit
+      if (leadForm) {
+        leadForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = qs('#leadName').value;
+          const email = qs('#leadEmail').value;
+          const company = qs('#leadCompany').value;
+          const source = qs('#leadSource').value;
+          const status = qs('#leadStatus').value;
+
+          const badgeClass = getBadgeClass(status);
+
+          const newRow = document.createElement('tr');
+          newRow.innerHTML = `
+            <td>${name}</td>
+            <td>${email}</td>
+            <td>${company}</td>
+            <td>${source}</td>
+            <td><span class="badge ${badgeClass}">${status}</span></td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-icon" title="Edit">Edit</button>
+                <button class="btn-icon btn-icon--danger delete-btn" title="Delete">Delete</button>
+              </div>
+            </td>
+          `;
+
+          attachDeleteHandler(newRow.querySelector('.delete-btn'));
+
+          tableBody.appendChild(newRow);
+          closeAddModal();
+        });
+      }
+
+      // Helper to attach deletion trigger to row
+      const attachDeleteHandler = (btn) => {
+        btn.addEventListener('click', (e) => {
+          const row = e.target.closest('tr');
+          openDeleteModal(row);
+        });
+      };
+
+      qsa('.delete-btn', tableBody).forEach(attachDeleteHandler);
+
+      // Search & Status Filter
+      const searchInput = qs('#searchInput');
+      const statusFilter = qs('#statusFilter');
+
+      const filterTable = () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const rows = qsa('tr', tableBody);
+
+        rows.forEach(row => {
+          const text = row.innerText.toLowerCase();
+          const statusBadge = qs('.badge', row).innerText;
+          const matchesSearch = text.includes(searchTerm);
+          const matchesStatus = !statusValue || statusBadge === statusValue;
+
+          row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+      };
+
+      if (searchInput) searchInput.addEventListener('input', filterTable);
+      if (statusFilter) statusFilter.addEventListener('change', filterTable);
+    });
+  </script>
+</body>
+</html>
