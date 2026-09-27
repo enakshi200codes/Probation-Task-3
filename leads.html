@@ -146,7 +146,6 @@
       color: var(--color-danger);
     }
 
-    /* Modal Overlay */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -250,7 +249,6 @@
         </ul>
       </nav>
     </aside>
-
     <div class="main-content">
       <header class="navbar">
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -264,7 +262,6 @@
           </div>
         </div>
       </header>
-
       <main class="content-wrapper">
         <div class="page-header-actions">
           <div class="search-filter-bar">
@@ -279,7 +276,6 @@
           </div>
           <button id="openModalBtn" class="btn-action">+ Add Lead</button>
         </div>
-
         <div class="table-card">
           <table class="data-table">
             <thead>
@@ -338,8 +334,6 @@
       </main>
     </div>
   </div>
-
-  <!-- Add Lead Modal -->
   <div id="leadModal" class="modal-overlay">
     <div class="modal">
       <div class="modal__header">
@@ -379,8 +373,6 @@
       </form>
     </div>
   </div>
-
-  <!-- Custom Delete Confirmation Modal -->
   <div id="deleteModal" class="modal-overlay">
     <div class="modal">
       <div class="modal__header">
@@ -398,73 +390,57 @@
       </div>
     </div>
   </div>
-
   <script type="module">
     import { qs, qsa, toggleClass } from './js/dom.js';
-
     document.addEventListener('DOMContentLoaded', () => {
       const sidebarToggler = qs('#sidebarToggler');
       const sidebar = qs('#sidebar');
       if (sidebarToggler && sidebar) {
         sidebarToggler.addEventListener('click', () => toggleClass(sidebar, 'open'));
       }
-
-      // Add Lead Modal elements
       const modal = qs('#leadModal');
       const openModalBtn = qs('#openModalBtn');
       const closeModalBtn = qs('#closeModalBtn');
       const cancelModalBtn = qs('#cancelModalBtn');
       const leadForm = qs('#leadForm');
       const tableBody = qs('#leadTableBody');
-
       const openAddModal = () => toggleClass(modal, 'open');
       const closeAddModal = () => {
         modal.classList.remove('open');
         if (leadForm) leadForm.reset();
         qsa('.form-input, .form-select', leadForm).forEach(el => el.classList.remove('error'));
       };
-
       if (openModalBtn) openModalBtn.addEventListener('click', openAddModal);
       if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddModal);
       if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeAddModal);
-
-      // Outside click for Add Modal
       if (modal) {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) closeAddModal();
         });
       }
-
-      // Delete Confirmation Modal elements
       const deleteModal = qs('#deleteModal');
       const closeDeleteModalBtn = qs('#closeDeleteModalBtn');
       const cancelDeleteBtn = qs('#cancelDeleteBtn');
       const confirmDeleteBtn = qs('#confirmDeleteBtn');
       const deleteLeadNameEl = qs('#deleteLeadName');
-      
       let rowToDelete = null;
-
       const openDeleteModal = (row) => {
         rowToDelete = row;
         const name = row.children[0].innerText;
         deleteLeadNameEl.innerText = name;
         toggleClass(deleteModal, 'open');
       };
-
       const closeDeleteModal = () => {
         deleteModal.classList.remove('open');
         rowToDelete = null;
       };
-
       if (deleteModal) {
         deleteModal.addEventListener('click', (e) => {
           if (e.target === deleteModal) closeDeleteModal();
         });
       }
-
       if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
       if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-
       if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', () => {
           if (rowToDelete) {
@@ -473,15 +449,12 @@
           closeDeleteModal();
         });
       }
-
-      // Global Escape Key Listener for all modals
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           closeAddModal();
           closeDeleteModal();
         }
       });
-
       const getBadgeClass = (status) => {
         switch(status) {
           case 'New': return 'badge--new';
@@ -491,8 +464,6 @@
           default: return 'badge--new';
         }
       };
-
-      // Add Lead Form Submit
       if (leadForm) {
         leadForm.addEventListener('submit', (e) => {
           e.preventDefault();
@@ -501,9 +472,7 @@
           const company = qs('#leadCompany').value;
           const source = qs('#leadSource').value;
           const status = qs('#leadStatus').value;
-
           const badgeClass = getBadgeClass(status);
-
           const newRow = document.createElement('tr');
           newRow.innerHTML = `
             <td>${name}</td>
@@ -518,43 +487,32 @@
               </div>
             </td>
           `;
-
           attachDeleteHandler(newRow.querySelector('.delete-btn'));
-
           tableBody.appendChild(newRow);
           closeAddModal();
         });
       }
-
-      // Helper to attach deletion trigger to row
       const attachDeleteHandler = (btn) => {
         btn.addEventListener('click', (e) => {
           const row = e.target.closest('tr');
           openDeleteModal(row);
         });
       };
-
       qsa('.delete-btn', tableBody).forEach(attachDeleteHandler);
-
-      // Search & Status Filter
       const searchInput = qs('#searchInput');
       const statusFilter = qs('#statusFilter');
-
       const filterTable = () => {
         const searchTerm = searchInput.value.toLowerCase();
         const statusValue = statusFilter.value;
         const rows = qsa('tr', tableBody);
-
         rows.forEach(row => {
           const text = row.innerText.toLowerCase();
           const statusBadge = qs('.badge', row).innerText;
           const matchesSearch = text.includes(searchTerm);
           const matchesStatus = !statusValue || statusBadge === statusValue;
-
           row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
         });
       };
-
       if (searchInput) searchInput.addEventListener('input', filterTable);
       if (statusFilter) statusFilter.addEventListener('change', filterTable);
     });

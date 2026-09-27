@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/polish.css">
   <style>
-    /* Dashboard specific layout components */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -119,7 +118,6 @@
       margin-top: var(--space-2);
     }
 
-    /* Activity List */
     .activity-list {
       display: flex;
       flex-direction: column;
@@ -176,7 +174,6 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar__header">
         <span class="sidebar__logo">NimbusCRM</span>
@@ -190,8 +187,6 @@
         </ul>
       </nav>
     </aside>
-
-    <!-- Main Content Shell -->
     <div class="main-content">
       <header class="navbar">
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -205,9 +200,7 @@
           </div>
         </div>
       </header>
-
       <main class="content-wrapper">
-        <!-- KPI Cards Row -->
         <div class="dashboard-grid">
           <div class="kpi-card">
             <div class="kpi-card__title">Total Revenue</div>
@@ -230,10 +223,7 @@
             <span class="kpi-card__trend trend--up">↑ 1.8% vs last month</span>
           </div>
         </div>
-
-        <!-- Secondary Grid: Chart + Recent Activity -->
         <div class="dashboard-secondary-grid">
-          <!-- Sales Overview Chart -->
           <div class="card">
             <div class="card__header">
               <h2 class="card__title">Monthly Sales Performance</h2>
@@ -265,8 +255,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Recent Activity -->
           <div class="card">
             <div class="card__header">
               <h2 class="card__title">Recent Activity</h2>
@@ -306,7 +294,6 @@
       </main>
     </div>
   </div>
-
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

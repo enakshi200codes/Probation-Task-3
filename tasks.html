@@ -104,7 +104,6 @@
       font-weight: var(--font-weight-medium);
     }
 
-    /* Priority Badges */
     .badge--priority-low {
       background-color: var(--color-bg-body);
       color: var(--color-text-muted);
@@ -267,7 +266,6 @@
         </ul>
       </nav>
     </aside>
-
     <div class="main-content">
       <header class="navbar">
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -281,7 +279,6 @@
           </div>
         </div>
       </header>
-
       <main class="content-wrapper">
         <div class="page-header-actions">
             <div class="search-filter-bar">
@@ -301,7 +298,6 @@
             </div>
           <button id="openModalBtn" class="btn-action">+ Add Task</button>
         </div>
-
         <div class="table-card">
           <table class="data-table">
             <thead>
@@ -360,8 +356,6 @@
       </main>
     </div>
   </div>
-
-  <!-- Add Task Modal -->
   <div id="taskModal" class="modal-overlay">
     <div class="modal">
       <div class="modal__header">
@@ -404,8 +398,6 @@
       </form>
     </div>
   </div>
-
-  <!-- Custom Delete Confirmation Modal -->
   <div id="deleteModal" class="modal-overlay">
     <div class="modal">
       <div class="modal__header">
@@ -423,72 +415,57 @@
       </div>
     </div>
   </div>
-
   <script type="module">
     import { qs, qsa, toggleClass } from './js/dom.js';
-
     document.addEventListener('DOMContentLoaded', () => {
       const sidebarToggler = qs('#sidebarToggler');
       const sidebar = qs('#sidebar');
       if (sidebarToggler && sidebar) {
         sidebarToggler.addEventListener('click', () => toggleClass(sidebar, 'open'));
       }
-
-      // Add Task Modal elements
       const modal = qs('#taskModal');
       const openModalBtn = qs('#openModalBtn');
       const closeModalBtn = qs('#closeModalBtn');
       const cancelModalBtn = qs('#cancelModalBtn');
       const taskForm = qs('#taskForm');
       const tableBody = qs('#taskTableBody');
-
       const openAddModal = () => toggleClass(modal, 'open');
       const closeAddModal = () => {
         modal.classList.remove('open');
         if (taskForm) taskForm.reset();
         qsa('.form-input, .form-select', taskForm).forEach(el => el.classList.remove('error'));
       };
-
       if (openModalBtn) openModalBtn.addEventListener('click', openAddModal);
       if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddModal);
       if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeAddModal);
-
       if (modal) {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) closeAddModal();
         });
       }
-
-      // Delete Confirmation Modal elements
       const deleteModal = qs('#deleteModal');
       const closeDeleteModalBtn = qs('#closeDeleteModalBtn');
       const cancelDeleteBtn = qs('#cancelDeleteBtn');
       const confirmDeleteBtn = qs('#confirmDeleteBtn');
       const deleteTaskTitleEl = qs('#deleteTaskTitle');
-      
       let rowToDelete = null;
-
       const openDeleteModal = (row) => {
         rowToDelete = row;
         const title = row.children[0].innerText;
         deleteTaskTitleEl.innerText = title;
         toggleClass(deleteModal, 'open');
       };
-
       const closeDeleteModal = () => {
         deleteModal.classList.remove('open');
         rowToDelete = null;
       };
-
       if (deleteModal) {
         deleteModal.addEventListener('click', (e) => {
           if (e.target === deleteModal) closeDeleteModal();
         });
       }
-
       if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
       if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-
       if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', () => {
           if (rowToDelete) {
@@ -497,15 +474,12 @@
           closeDeleteModal();
         });
       }
-
-      // Global Escape Key Listener
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           closeAddModal();
           closeDeleteModal();
         }
       });
-
       const getPriorityBadgeClass = (priority) => {
         switch(priority) {
           case 'Low': return 'badge--priority-low';
@@ -514,7 +488,6 @@
           default: return 'badge--priority-low';
         }
       };
-
       const getStatusBadgeClass = (status) => {
         switch(status) {
           case 'To Do': return 'badge--status-todo';
@@ -523,8 +496,6 @@
           default: return 'badge--status-todo';
         }
       };
-
-      // Add Task Form Submit
       if (taskForm) {
         taskForm.addEventListener('submit', (e) => {
           e.preventDefault();
@@ -533,19 +504,14 @@
           const priority = qs('#taskPriority').value;
           const dueDate = qs('#taskDueDate').value;
           const status = qs('#taskStatus').value;
-
           const priorityClass = getPriorityBadgeClass(priority);
           const statusClass = getStatusBadgeClass(status);
-
-          // Overdue calculation against current simulated date (2026-09-27)
           const today = new Date('2026-09-27');
           const due = new Date(dueDate);
           const isOverdue = due < today && status !== 'Done';
-
           const dateDisplay = isOverdue 
             ? `<span class="overdue-text">${dueDate} (Overdue)</span>` 
             : dueDate;
-
           const newRow = document.createElement('tr');
           newRow.innerHTML = `
             <td>${title}</td>
@@ -560,24 +526,18 @@
               </div>
             </td>
           `;
-
           attachDeleteHandler(newRow.querySelector('.delete-btn'));
-
           tableBody.appendChild(newRow);
           closeAddModal();
         });
       }
-
       const attachDeleteHandler = (btn) => {
         btn.addEventListener('click', (e) => {
           const row = e.target.closest('tr');
           openDeleteModal(row);
         });
       };
-
       qsa('.delete-btn', tableBody).forEach(attachDeleteHandler);
-
-      // Search & Status Filter
       const searchInput = qs('#searchInput');
 const statusFilter = qs('#statusFilter');
 const priorityFilter = qs('#priorityFilter');
@@ -586,9 +546,7 @@ const filterTable = () => {
     const searchTerm = searchInput.value.toLowerCase();
     const statusValue = statusFilter.value;
     const priorityValue = priorityFilter.value;
-
     const rows = qsa('tr', tableBody);
-
     rows.forEach(row => {
         const taskTitle = row.children[0].innerText.toLowerCase();
         const assignee = row.children[1].innerText.toLowerCase();
@@ -617,13 +575,10 @@ const filterTable = () => {
                 : 'none';
     });
 };
-
 if (searchInput)
     searchInput.addEventListener('input', filterTable);
-
 if (statusFilter)
     statusFilter.addEventListener('change', filterTable);
-
 if (priorityFilter)
     priorityFilter.addEventListener('change', filterTable);
     });
